@@ -20,7 +20,7 @@ class Graph:
     s = Start of an edge
     e = End of an edge
     c = Cost associated with that edge
-    d = Distance assosicated with that edge
+    d = Distance associated with that edge
     ----
     OUTPUT
     3 graphs made from lists of lists
