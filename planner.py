@@ -31,10 +31,21 @@ class Graph:
     ----
     """
     def __init__(self):
-        pass
+        input = sys.stdin.read()
+        self.data = list(map(int, input.split()))
+        self.n, self.m = self.data[0:2]
+        self.data = self.data[2:]
+        self.edges = list(zip(zip(self.data[0:(3 * self.m):3],
+            self.data[1:(3 * self.m):3]), self.data[2:(3 * self.m):3]))
+        self.data = self.data[3 * self.m:]
+        self.graph = [[] for _ in range(self.n)]
+        self.cost = [[] for _ in range(self.n)]
+        for ((a, b), c) in self.edges:
+            self.graph[a - 1].append(b - 1)
+            #self.graph[b - 1].append(a - 1)
+            self.cost[a - 1].append(c)
+        self.s, self.t = self.data[0] - 1, self.data[1] - 1
 
-    def read_data(self):
-        pass
 
 
 
@@ -50,16 +61,21 @@ class FlightCalculators:
     ----
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, graph,cost, a, b):
+        self.graph = graph
+        self.cost = cost
+        self.size = len(graph)
+        self.a = a
+        self.b = b
 
 
-    def least_stops(self, graph, a, b):
+    def least_stops(self):
         """
         SUMMARY
         Caluclates the path between the two cities with the least amount of stops.
 
         Algorithm - BFS
+        Runtime - O(n + m)
         ----
         INPUT
         Takes the graph of airports, Graph.
@@ -69,45 +85,76 @@ class FlightCalculators:
         OUTPUT
         Integer value representing the number of stops.
         """
-        self.size = len(graph)
-        self.visisted = [False] * size
-        self.no_stops = [-1] * size
+        self.visited = [False] * self.size
+        self.no_stops = [-1] * self.size
         self.queue = []
-        self.queue.append(a)
-        self.visited[a] = True
-        self.no_stops[a] = 0
+        self.queue.append(self.a)
+        self.visited[self.a] = True
+        self.no_stops[self.a] = 0
 
         while self.queue:
             self.node = self.queue.pop(0)
 
-            for i in graph[self.node]:
+            for i in self.graph[self.node]:
                 if self.visited[i] == False:
                     self.queue.append(i)
-                    self.no_stops[i] = no_stops[node] + 1
-                    self.visitied[i] = True
+                    self.no_stops[i] = self.no_stops[self.node] + 1
+                    self.visited[i] = True
 
-        if self.distance[t] = -1:
+        if self.no_stops[self.b] == -1:
             return "Sorry, no possible route"
 
         else:
-            return distance[b]
+            return self.no_stops[self.b]
 
 
-    def lowest_weight(self, graph, weight, a, b):
+    def lowest_weight(self):
+        """
+        SUMMARY
+        Calculates the optimal path for a weight graph. Currently only optimizes
+        on cost but will soon include distance.
 
-        pass
+        Algorithm - Dijkstras
+        Runtime - O(n^2)
+        """
+        self.weight_vals = [sys.maxsize] * self.size
+        self.visited = [False] * self.size
+        self.weight_vals[self.a] = 0
 
-    def getmin(weights, visitied):
+        for i in range(self.size + 1):
+            self.index = self.getmin(self.weight_vals, self.visited)
+            self.visited[self.index] = True
+
+            for j in range(len(self.graph[self.index])):
+                if self.weight_vals[self.graph[self.index][j]] > self.weight_vals[self.index] + self.cost[self.index][j]:
+                    self.weight_vals[self.graph[self.index][j]] = self.weight_vals[self.index] + self.cost[self.index][j]
+
+
+        if self.weight_vals[self.b] == sys.maxsize:
+            return "Sorry, no possible route"
+
+        return self.weight_vals[self.b]
+
+
+
+    def getmin(self, weights, visitied):
         """
         Temp method of finding minimum value for Dijkstra's algo.
-        Worst case run time On^2
+        Worst case run time O(n^2)
         Will replace with heap
         """
         self.min_val = sys.maxsize
         self.min_index = 0
 
-        for i in range(len(slef.min_val)):
-            if self.weights[i] < self.minval and self.visitied[i] == False:
-                self.min_val = self.weights[i]
+        for i in range(self.size):
+            if self.weight_vals[i] < self.min_val and self.visited[i] == False:
+                self.min_val = self.weight_vals[i]
                 self.min_index = i
-        return min_index
+        return self.min_index
+        
+
+if __name__ == "__main__":
+    graph = Graph()
+    planner = FlightCalculators(graph.graph, graph.cost, graph.s, graph.t)
+    print(planner.least_stops())
+    print(planner.lowest_weight())
