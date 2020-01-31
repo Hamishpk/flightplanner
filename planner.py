@@ -35,16 +35,19 @@ class Graph:
         self.data = list(map(int, input.split()))
         self.n, self.m = self.data[0:2]
         self.data = self.data[2:]
-        self.edges = list(zip(zip(self.data[0:(3 * self.m):3],
-            self.data[1:(3 * self.m):3]), self.data[2:(3 * self.m):3]))
+        self.edges = list(zip(zip(self.data[0:(4 * self.m):4],
+            self.data[1:(4 * self.m):4]), self.data[2:(4 * self.m):4], self.data[3:(4 * self.m):4]))
         self.data = self.data[3 * self.m:]
         self.graph = [[] for _ in range(self.n)]
         self.cost = [[] for _ in range(self.n)]
-        for ((a, b), c) in self.edges:
+        self.distance = [[] for _ in range(self.n)]
+        for ((a, b), c, d) in self.edges:
             self.graph[a - 1].append(b - 1)
             #self.graph[b - 1].append(a - 1)
             self.cost[a - 1].append(c)
+            self.distance[a - 1].append(d)
         self.s, self.t = self.data[0] - 1, self.data[1] - 1
+
 
 
 
@@ -61,7 +64,7 @@ class FlightCalculators:
     ----
     """
 
-    def __init__(self, graph,cost, a, b):
+    def __init__(self, graph, cost, a, b):
         self.graph = graph
         self.cost = cost
         self.size = len(graph)
@@ -108,7 +111,16 @@ class FlightCalculators:
             return self.no_stops[self.b]
 
 
-    def lowest_weight(self):
+    def cheapest_route(self):
+        return self.dijkstras(self.cost)
+
+
+    def shortest_distance(self):
+        return self.dijkstras(self.distance)
+
+
+
+    def dijkstras(self, weighting):
         """
         SUMMARY
         Calculates the optimal path for a weight graph. Currently only optimizes
@@ -117,6 +129,7 @@ class FlightCalculators:
         Algorithm - Dijkstras
         Runtime - O(n^2)
         """
+        self.weighting = weighting
         self.weight_vals = [sys.maxsize] * self.size
         self.visited = [False] * self.size
         self.weight_vals[self.a] = 0
@@ -126,8 +139,8 @@ class FlightCalculators:
             self.visited[self.index] = True
 
             for j in range(len(self.graph[self.index])):
-                if self.weight_vals[self.graph[self.index][j]] > self.weight_vals[self.index] + self.cost[self.index][j]:
-                    self.weight_vals[self.graph[self.index][j]] = self.weight_vals[self.index] + self.cost[self.index][j]
+                if self.weight_vals[self.graph[self.index][j]] > self.weight_vals[self.index] + self.weighting[self.index][j]:
+                    self.weight_vals[self.graph[self.index][j]] = self.weight_vals[self.index] + self.weighting[self.index][j]
 
 
         if self.weight_vals[self.b] == sys.maxsize:
@@ -151,10 +164,10 @@ class FlightCalculators:
                 self.min_val = self.weight_vals[i]
                 self.min_index = i
         return self.min_index
-        
+
 
 if __name__ == "__main__":
     graph = Graph()
     planner = FlightCalculators(graph.graph, graph.cost, graph.s, graph.t)
     print(planner.least_stops())
-    print(planner.lowest_weight())
+    print(planner.cheapest_route())
