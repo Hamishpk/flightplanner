@@ -37,7 +37,7 @@ class Graph:
         self.data = self.data[2:]
         self.edges = list(zip(zip(self.data[0:(4 * self.m):4],
             self.data[1:(4 * self.m):4]), self.data[2:(4 * self.m):4], self.data[3:(4 * self.m):4]))
-        self.data = self.data[3 * self.m:]
+        self.data = self.data[4 * self.m:]
         self.graph = [[] for _ in range(self.n)]
         self.cost = [[] for _ in range(self.n)]
         self.distance = [[] for _ in range(self.n)]
@@ -46,7 +46,7 @@ class Graph:
             #self.graph[b - 1].append(a - 1)
             self.cost[a - 1].append(c)
             self.distance[a - 1].append(d)
-        self.s, self.t = self.data[0] - 1, self.data[1] - 1
+        self.s, self.e = self.data[0] - 1, self.data[1] - 1
 
 
 
@@ -64,9 +64,10 @@ class FlightCalculators:
     ----
     """
 
-    def __init__(self, graph, cost, a, b):
+    def __init__(self, graph, cost, distance, a, b):
         self.graph = graph
         self.cost = cost
+        self.distance = distance
         self.size = len(graph)
         self.a = a
         self.b = b
@@ -80,16 +81,12 @@ class FlightCalculators:
         Algorithm - BFS
         Runtime - O(n + m)
         ----
-        INPUT
-        Takes the graph of airports, Graph.
-        The integer value of the airport representing starting airport, a.
-        The integer value of the airport representing the target airport, b.
-        ----
         OUTPUT
         Integer value representing the number of stops.
         """
         self.visited = [False] * self.size
         self.no_stops = [-1] * self.size
+        self.parents = [None] * self.size
         self.queue = []
         self.queue.append(self.a)
         self.visited[self.a] = True
@@ -100,6 +97,7 @@ class FlightCalculators:
 
             for i in self.graph[self.node]:
                 if self.visited[i] == False:
+                    self.parents[i] = self.node
                     self.queue.append(i)
                     self.no_stops[i] = self.no_stops[self.node] + 1
                     self.visited[i] = True
@@ -107,15 +105,29 @@ class FlightCalculators:
         if self.no_stops[self.b] == -1:
             return "Sorry, no possible route"
 
+        self.i = self.b
+        self.answer = [self.b + 1]
+
+        while self.i != 0:
+            self.answer.insert(0, self.parents[self.i] + 1)
+            self.i = self.parents[self.i]
+
+
         else:
-            return self.no_stops[self.b]
+            return self.no_stops[self.b], self.answer
 
 
     def cheapest_route(self):
+        """
+        Calculates cheapest route.
+        """
         return self.dijkstras(self.cost)
 
 
     def shortest_distance(self):
+        """
+        Calculates shorted distance.
+        """
         return self.dijkstras(self.distance)
 
 
@@ -123,7 +135,7 @@ class FlightCalculators:
     def dijkstras(self, weighting):
         """
         SUMMARY
-        Calculates the optimal path for a weight graph. Currently only optimizes
+        Calculates the optimal path for a weighted graph. Currently only optimizes
         on cost but will soon include distance.
 
         Algorithm - Dijkstras
@@ -131,6 +143,7 @@ class FlightCalculators:
         """
         self.weighting = weighting
         self.weight_vals = [sys.maxsize] * self.size
+        self.parents = [None] * self.size
         self.visited = [False] * self.size
         self.weight_vals[self.a] = 0
 
@@ -138,15 +151,24 @@ class FlightCalculators:
             self.index = self.getmin(self.weight_vals, self.visited)
             self.visited[self.index] = True
 
+
             for j in range(len(self.graph[self.index])):
                 if self.weight_vals[self.graph[self.index][j]] > self.weight_vals[self.index] + self.weighting[self.index][j]:
                     self.weight_vals[self.graph[self.index][j]] = self.weight_vals[self.index] + self.weighting[self.index][j]
+                    self.parents[self.graph[self.index][j]] = self.index
+
 
 
         if self.weight_vals[self.b] == sys.maxsize:
             return "Sorry, no possible route"
 
-        return self.weight_vals[self.b]
+        self.i = self.b
+        self.answer = [self.b + 1]
+        while self.i != 0:
+            self.answer.insert(0, self.parents[self.i] + 1)
+            self.i = self.parents[self.i]
+
+        return self.weight_vals[self.b], self.answer
 
 
 
@@ -168,6 +190,7 @@ class FlightCalculators:
 
 if __name__ == "__main__":
     graph = Graph()
-    planner = FlightCalculators(graph.graph, graph.cost, graph.s, graph.t)
+    planner = FlightCalculators(graph.graph, graph.cost, graph.distance, graph.s, graph.e)
     print(planner.least_stops())
     print(planner.cheapest_route())
+    print(planner.shortest_distance())
