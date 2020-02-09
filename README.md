@@ -12,11 +12,11 @@ Available flights - Given a start location and a total budget, return a list of 
 
 Route planner - Given a list of locations calculate the cheapest route connecting those locations.
 
-Travel planner - Given a budget and a start location, calculate a route that visits the maximum locations and returns to the start locations.
+Travel planner - Given a budget and a start location, calculate a route that visits the maximum number of locations and returns to the start locations.
 
 ## Roadmap
 
-Fist on the list is impliment a priority queue to impove the runtime of Dijkstras. Then complete the functions and once everything is working through my command line I'll build a back end using Flask and host it on Heroku.
+First on the list is implement a priority queue to impove the runtime of Dijkstras. Then complete the functions and once everything is working through my command line I'll build a back end using Flask and host it on Heroku.
 
 Currently the program runs on dummy data I generate myself, once the above is complete I'll look into either collecting real life flight data or if an API exists even better :)
 
