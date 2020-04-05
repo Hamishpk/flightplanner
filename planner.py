@@ -46,7 +46,7 @@ class Graph:
             #self.graph[b - 1].append(a - 1)
             self.cost[a - 1].append(c)
             self.distance[a - 1].append(d)
-        self.s, self.e = self.data[0] - 1, self.data[1] - 1
+        self.start, self.end = self.data[0] - 1, self.data[1] - 1
 
 
 
@@ -64,13 +64,13 @@ class FlightCalculators:
     ----
     """
 
-    def __init__(self, graph, cost, distance, a, b):
+    def __init__(self, graph, cost, distance, start, end):
         self.graph = graph
         self.cost = cost
         self.distance = distance
         self.size = len(graph)
-        self.a = a
-        self.b = b
+        self.start = start
+        self.end = end
 
 
     def least_stops(self):
@@ -88,9 +88,9 @@ class FlightCalculators:
         self.no_stops = [-1] * self.size
         self.parents = [None] * self.size
         self.queue = []
-        self.queue.append(self.a)
-        self.visited[self.a] = True
-        self.no_stops[self.a] = 0
+        self.queue.append(self.start)
+        self.visited[self.start] = True
+        self.no_stops[self.start] = 0
 
         while self.queue:
             self.node = self.queue.pop(0)
@@ -102,11 +102,11 @@ class FlightCalculators:
                     self.no_stops[i] = self.no_stops[self.node] + 1
                     self.visited[i] = True
 
-        if self.no_stops[self.b] == -1:
+        if self.no_stops[self.end] == -1:
             return "Sorry, no possible route"
 
-        self.i = self.b
-        self.answer = [self.b + 1]
+        self.i = self.end
+        self.answer = [self.end + 1]
 
         while self.i != 0:
             self.answer.insert(0, self.parents[self.i] + 1)
@@ -114,7 +114,7 @@ class FlightCalculators:
 
 
         else:
-            return self.no_stops[self.b], self.answer
+            return self.no_stops[self.end], self.answer
 
 
     def cheapest_route(self):
@@ -145,7 +145,7 @@ class FlightCalculators:
         self.weight_vals = [sys.maxsize] * self.size
         self.parents = [None] * self.size
         self.visited = [False] * self.size
-        self.weight_vals[self.a] = 0
+        self.weight_vals[self.start] = 0
 
         for i in range(self.size + 1):
             self.index = self.getmin(self.weight_vals, self.visited)
@@ -159,16 +159,16 @@ class FlightCalculators:
 
 
 
-        if self.weight_vals[self.b] == sys.maxsize:
+        if self.weight_vals[self.end] == sys.maxsize:
             return "Sorry, no possible route"
 
-        self.i = self.b
-        self.answer = [self.b + 1]
+        self.i = self.end
+        self.answer = [self.end + 1]
         while self.i != 0:
             self.answer.insert(0, self.parents[self.i] + 1)
             self.i = self.parents[self.i]
 
-        return self.weight_vals[self.b], self.answer
+        return self.weight_vals[self.end], self.answer
 
 
 
@@ -190,7 +190,7 @@ class FlightCalculators:
 
 if __name__ == "__main__":
     graph = Graph()
-    planner = FlightCalculators(graph.graph, graph.cost, graph.distance, graph.s, graph.e)
+    planner = FlightCalculators(graph.graph, graph.cost, graph.distance, graph.start, graph.end)
     print(planner.least_stops())
     print(planner.cheapest_route())
     print(planner.shortest_distance())
